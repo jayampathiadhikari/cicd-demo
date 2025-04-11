@@ -19,7 +19,6 @@ jobs:
           username: ${{ secrets.DOCKERHUB_USERNAME  }}
           password: ${{ secrets.DOCKERHUB_TOKEN  }}
 
-
       - name: Build and push Docker image
         uses: docker/build-push-action@v6
         with:
@@ -27,4 +26,22 @@ jobs:
           file: dockerfile
           push: true
           tags: jayampthi/demoapi:latest
+
+  deploy-test:
+    needs: build-and-push
+    runs-on: ubuntu-latest
+    steps:
+      - name: Deploy to Test EC2
+        uses: appleboy/ssh-action@v0.1.10
+        with:
+          host: ${{ secrets.EC2_TEST_HOST }}
+          username: ${{ secrets.EC2_SSH_USER }}
+          key: ${{ secrets.EC2_SSH_PRIVATE_KEY }}
+          script: |
+            docker pull jayampthi/demoapi:latest
+            docker stop demoapi || true && docker rm demoapi || true
+            docker run -d -p 8080:8080 --name demoapi jayampthi/demoapi:latest
+
+
+
   
