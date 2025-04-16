@@ -42,7 +42,6 @@ jobs:
             docker stop demoapi || true && docker rm demoapi || true
             docker run -d -p 8080:8080 --name demoapi jayampthi/demoapi:latest
 
-
   deploy-prod:
     needs: deploy-test
     if: github.event_name == 'workflow_dispatch'
